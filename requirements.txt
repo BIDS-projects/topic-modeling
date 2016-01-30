@@ -1,2 +1,6 @@
 sqlalchemy
 sqlalchemy-utils
+textmining
+numpy
+lda
+stemmer
