@@ -5,6 +5,13 @@ LDA Tests
 import pytest
 import ldaimp
 
+@pytest.fixture
+def mockitem():
+    item = lambda x: x
+    item.base_url = 'http://berkeley.edu'
+    item.text = 'UC Berkeley rocks'
+    return item
+
 def test_lda():
     doc1 = "Skip to main content Intelligent research design for data intensive social science About About D-Lab Staff Dav Clark FAQ Contact Us Join Us Donate Services Training Past Trainings Consulting Working Groups Space Resources Data Resources Campus Resources Course List Blog & Events Blog Campus Events Calendar Intelligent research design for the age of data intensive social science. Helping social scientists collect, process, and visualize data Are you starting research or working on a project that uses data? Are you a data visualization expert looking for access to new data sets? D-Lab's collaborative environment caters to many types of data needs. The tools, methods, and techniques that D-Lab provides offer social scientists the ability to engage with complex research questions and produce answers that benefit academic colleagues, policymakers, and the public."
     doc2 = "A flexible infrastructure of hardware, software, and above all human talent D-Lab is a new lab that aims to provide services, support, and a venue for research design and experimentation in data-intensive social sciences. Supporting research instruction wherever it occurs Researchers learn about new data, software and techniques in classrooms and lecture halls, but they also learn in online courses, through webinars, at personalized workshops, during seminars and brownbags, and through one-on-one consultations and discussions. D-Lab seeks to support those learning interactions, wherever and however they take place. Previous Pause Next Upcoming Trainings 14-Jan-16 10:00am INTENSIVE: QDA Day 4 - From Coding Qualitative Data to Analyzing It 14-Jan-16 12:30pm INTENSIVE: Stata 14-Jan-16 1:00pm INTENSIVE: R for Data Science Day 3 (analyzing data) See more Sign Up for Our Mailing List Keep up to date about the latest events, trainings, and news from the D-Lab! Email * Happy Holidays! The D-Lab will be closed December 21 thru January 1."
@@ -12,3 +19,6 @@ def test_lda():
     corpus = [doc1, doc2, doc3]
     model = LDAM(10)
     model.fit(corpus)
+
+def test_input(mockitem):
+    assert mockitem.base_url == 'http://berkeley.edu'
