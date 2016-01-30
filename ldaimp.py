@@ -47,10 +47,15 @@ class LDAM:
 
         Things to think about: A way to visualize the distribution of these words in each topic.
         """
+        for line in self.topics(n_words):
+            print(line)
+
+    def topics(self, n_words):
+        """Gives a generator of values to print"""
+        yield self.terms
         for i, top_dist in enumerate(self.model.topic_word_):
-            print(self.terms)
             topic_words = np.array(self.terms)[np.argsort(top_dist)][:-(n_words+1)]
-            print('Topic {}: {}'.format(i, ' '.join(topic_words)))
+            yield 'Topic {}: {}'.format(i, ' '.join(topic_words))
 
     def printDocTopic(self):
         """
@@ -61,4 +66,4 @@ class LDAM:
         """
         doc_topic = self.model.doc_topic_
         for i in range(len(self.documents)):
-            print("{} (top topic: {})".format(titles[i], doc_topic[i].argmax()))
+            print("{} (top topic: {})".format(self.documents[i], doc_topic[i].argmax()))
