@@ -4,3 +4,4 @@ textmining
 numpy
 lda
 stemmer
+pytest
