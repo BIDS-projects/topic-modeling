@@ -3,7 +3,7 @@ LDA Tests
 """
 
 import pytest
-import ldaimp
+from bidslda import bidslda
 import arrow
 
 class MockItem:
