@@ -5,7 +5,7 @@ import lda
 
 def createDocTermMat(dataset):
     """
-    Transform the dataset from list of list of words to a document-term matrix.
+    Transform the dataset from mockobjects as specified in test_lda.py in tests folder to a document-term matrix.
     
     A document-term matrix is a matrix of documents vs terms present in the collection of documents. 
     The entries denote the frequency of a term in a given document.
@@ -16,14 +16,15 @@ def createDocTermMat(dataset):
     Note that the identifiers depend on what we choose as our definition for documents. For now this is all the text in a web directory. Future studies: research paper, papers of researchers, summary of institution, institutional research papers.
     """
     docTermMatrix = textmining.TermDocumentMatrix()
-    
+    titles = []
     # Adds each document to the docTermMatrix, assuming document is a list of words
     for document in dataset:
-        docTermMatrix.add_doc(document)
+        titles.append(document.base_url)
+        docTermMatrix.add_doc(document.text)
     temp = list(docTermMatrix.rows(cutoff=1))
     terms = tuple(temp[0])
     matrix = np.array(temp[1:])
-    return [matrix, terms, ['lol']]
+    return [matrix, terms, titles]
 
 def saveTo(name, dtm):
     """
