@@ -6,3 +6,4 @@ lda
 stemmer
 pytest
 arrow
+nltk

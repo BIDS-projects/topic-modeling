@@ -1,7 +1,10 @@
 import numpy as np
 import textmining
 import lda
-
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import RegexpTokenizer
+from nltk.stem.porter import PorterStemmer
 
 def createDocTermMat(dataset):
     """
@@ -20,12 +23,25 @@ def createDocTermMat(dataset):
     # Adds each document to the docTermMatrix, assuming document is a list of words
     for document in dataset:
         titles.append(document.base_url)
-        docTermMatrix.add_doc(document.text)
+        proc_Text = preprocess(document.text)
+        docTermMatrix.add_doc(procText)
     temp = list(docTermMatrix.rows(cutoff=1))
     terms = tuple(temp[0])
     matrix = np.array(temp[1:])
     return [matrix, terms, titles]
 
+def preprocess(document):
+    # Break the text up into tokens
+    tokenizer = RegexpTokenizer(r'\w+')
+    word_list = tokenizer.tokenize(document)
+    # Remove stopwords
+    stopwords = set(stopwords.words('english'))
+    text = [word for word in word_list if word.lower not in stopwords]
+    # Include word stemming
+    stemmer = PorterStemmer()
+    text = [stemmer.stem(word) for word in text]
+    return text
+    
 def saveTo(name, dtm):
     """
         Save the document-term matrix to name. Cutoff represents the minimum frequency a word must have before it is considered
