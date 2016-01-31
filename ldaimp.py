@@ -1,6 +1,8 @@
 import numpy as np
 import textmining
 import lda
+from pymongo import MongoClient
+from items import DocumentItem
 
 
 def createDocTermMat(dataset):
@@ -68,3 +70,34 @@ class LDAM:
         doc_topic = self.model.doc_topic_
         for i in range(len(self.documents)):
             print("{} (top topic: {})".format(self.documents[i], doc_topic[i].argmax()))
+
+
+
+class MongoDB_loader():
+    def __init__():
+        settings = {'MONGODB_SERVER':"localhost",
+                    'MONGODB_PORT': 27017,
+                    'MONGODB_DB': "ecosystem_mapping",
+                    'MONGODB_LINK_COLLECTION': "link_collection",
+                    'MONGODB_TEXT_COLLECTION': "text_collection"}
+
+        connection = MongoClient(
+            settings['MONGODB_SERVER'],
+            settings['MONGODB_PORT']
+        )
+        db = connection[settings['MONGODB_DB']]
+        selftext_collection = db[settings['MONGODB_TEXT_COLLECTION']]
+
+
+    def filter_words(word_string):
+        return word_string
+
+    def get_corpus():
+        uniq_base_urls = text_collection.distinct("base_url")
+        corpus = []
+        for base_url in uniq_base_urls:
+            item = DocumentItem(base_url)
+            for data in text_collection.find({"base_url": base_url}):
+                item.add_words(filter_words(data['text']))
+            corpus.append(item)
+        return corpus
