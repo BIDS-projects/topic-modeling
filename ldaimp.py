@@ -27,7 +27,7 @@ def createDocTermMat(dataset):
     for document in dataset:
         titles.append(document.base_url)
         proc_Text = preprocess(document.text)
-        docTermMatrix.add_doc(procText)
+        docTermMatrix.add_doc(proc_Text)
     temp = list(docTermMatrix.rows(cutoff=1))
     terms = tuple(temp[0])
     matrix = np.array(temp[1:])
@@ -91,7 +91,7 @@ class LDAM:
 
 
 class MongoDB_loader():
-    def __init__():
+    def __init__(self):
         settings = {'MONGODB_SERVER':"localhost",
                     'MONGODB_PORT': 27017,
                     'MONGODB_DB': "ecosystem_mapping",
@@ -103,18 +103,33 @@ class MongoDB_loader():
             settings['MONGODB_PORT']
         )
         db = connection[settings['MONGODB_DB']]
-        selftext_collection = db[settings['MONGODB_TEXT_COLLECTION']]
+        self.text_collection = db[settings['MONGODB_TEXT_COLLECTION']]
 
 
-    def filter_words(word_string):
-        return word_string
+    def filter_words(self, document):
+        # Break the text up into tokens
+        tokenizer = RegexpTokenizer(r'\w+')
+        word_list = tokenizer.tokenize(document)
+        # Remove stopwords
+        stopwords = set(stopwords.words('english'))
+        text = [word for word in word_list if word.lower not in stopwords]
+        # Include word stemming
+        stemmer = PorterStemmer()
+        text = [stemmer.stem(word) for word in text]
+        return text
 
-    def get_corpus():
-        uniq_base_urls = text_collection.distinct("base_url")
+    def get_corpus(self):
+        uniq_base_urls = self.text_collection.distinct("base_url")
         corpus = []
         for base_url in uniq_base_urls:
             item = DocumentItem(base_url)
-            for data in text_collection.find({"base_url": base_url}):
+            for data in self.text_collection.find({"base_url": base_url}):
                 item.add_words(filter_words(data['text']))
             corpus.append(item)
         return corpus
+
+m = MongoDB_loader()
+document = m.get_corpus()  # [item1, item2]
+for item in document:
+    item.document 
+
