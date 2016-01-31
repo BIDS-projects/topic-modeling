@@ -3,7 +3,6 @@ sqlalchemy-utils
 textmining
 numpy
 lda
-stemmer
 pytest
 arrow
 nltk
