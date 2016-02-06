@@ -111,8 +111,8 @@ class MongoDB_loader():
         tokenizer = RegexpTokenizer(r'\w+')
         word_list = tokenizer.tokenize(document)
         # Remove stopwords
-        stopwords = set(stopwords.words('english'))
-        text = [word for word in word_list if word.lower not in stopwords]
+        stop_words = set(stopwords.words('english'))
+        text = [word for word in word_list if word.lower not in stop_words]
         # Include word stemming
         stemmer = PorterStemmer()
         text = [stemmer.stem(word) for word in text]
@@ -124,12 +124,13 @@ class MongoDB_loader():
         for base_url in uniq_base_urls:
             item = DocumentItem(base_url)
             for data in self.text_collection.find({"base_url": base_url}):
-                item.add_words(filter_words(data['text']))
+                item.add_words(self.filter_words(data['text']))
             corpus.append(item)
         return corpus
 
 m = MongoDB_loader()
 document = m.get_corpus()  # [item1, item2]
 for item in document:
-    item.document 
+    print(item.get_document())
+    break
 
