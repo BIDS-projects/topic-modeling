@@ -25,25 +25,12 @@ def createDocTermMat(dataset):
     titles = []
     # Adds each document to the docTermMatrix, assuming document is a list of words
     for document in dataset:
-        titles.append(document.base_url)
-        proc_Text = preprocess(document.text)
-        docTermMatrix.add_doc(proc_Text)
+        titles.append(document.get_base_url())
+        docTermMatrix.add_doc(' '.join(document.get_document()))
     temp = list(docTermMatrix.rows(cutoff=1))
     terms = tuple(temp[0])
     matrix = np.array(temp[1:])
     return [matrix, terms, titles]
-
-def preprocess(document):
-    # Break the text up into tokens
-    tokenizer = RegexpTokenizer(r'\w+')
-    word_list = tokenizer.tokenize(document)
-    # Remove stopwords
-    stopwords = set(stopwords.words('english'))
-    text = [word for word in word_list if word.lower not in stopwords]
-    # Include word stemming
-    stemmer = PorterStemmer()
-    text = [stemmer.stem(word) for word in text]
-    return text
     
 def saveTo(name, dtm):
     """
@@ -114,8 +101,8 @@ class MongoDB_loader():
         stop_words = set(stopwords.words('english'))
         text = [word for word in word_list if word.lower not in stop_words]
         # Include word stemming
-        stemmer = PorterStemmer()
-        text = [stemmer.stem(word) for word in text]
+        # stemmer = PorterStemmer()
+        # # text = [stemmer.stem(word) for word in text]
         return text
 
     def get_corpus(self):
@@ -129,8 +116,7 @@ class MongoDB_loader():
         return corpus
 
 m = MongoDB_loader()
-document = m.get_corpus()  # [item1, item2]
-for item in document:
-    print(item.get_document())
-    break
+documents_list = m.get_corpus()  # [item1, item2]
+model = LDAM(5)
+model.fit(documents_list)
 
