@@ -1,6 +1,6 @@
 import numpy as np
-import textmining
-import lda
+#import textmining
+#import lda
 from pymongo import MongoClient
 from items import DocumentItem
 
