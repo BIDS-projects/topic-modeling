@@ -6,3 +6,4 @@ lda
 pytest
 arrow
 nltk
+pymongo
