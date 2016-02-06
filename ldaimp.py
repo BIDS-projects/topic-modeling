@@ -1,3 +1,5 @@
+https://pypi.python.org/pypi/lda
+
 import numpy as np
 #import textmining
 #import lda
