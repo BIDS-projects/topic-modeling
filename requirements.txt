@@ -1,6 +1,6 @@
 sqlalchemy
 sqlalchemy-utils
-textmining
+textmining == 1.0
 numpy
 lda == 1.0.3
 pytest

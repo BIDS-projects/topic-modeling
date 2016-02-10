@@ -1,7 +1,7 @@
 # REFERENCE: https://pypi.python.org/pypi/lda
 
 import numpy as np
-#import textmining
+import textmining
 import lda
 from pymongo import MongoClient
 from items import DocumentItem
