@@ -2,7 +2,7 @@ sqlalchemy
 sqlalchemy-utils
 textmining
 numpy
-lda
+lda == 1.0.3
 pytest
 arrow
 nltk
