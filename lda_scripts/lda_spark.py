@@ -1,6 +1,9 @@
 # Copy of template from http://spark.apache.org/docs/latest/mllib-clustering.html#latent-dirichlet-allocation-lda
+# use spark-submit
+
 from pyspark.mllib.clustering import LDA, LDAModel
 from pyspark.mllib.linalg import Vectors
+from pyspark import SparkContext as sc
 
 # Load and parse the data
 data = sc.textFile("data/mllib/sample_lda_data.txt")

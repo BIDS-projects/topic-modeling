@@ -125,4 +125,5 @@ if __name__ == "__main__":
     documents_list = m.get_corpus()  # [item1, item2]
     model = LDAM(5)
     model.fit(documents_list)
+    model.printTopics(10)
 
