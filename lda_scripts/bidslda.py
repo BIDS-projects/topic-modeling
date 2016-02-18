@@ -1,10 +1,11 @@
 # REFERENCE: https://pypi.python.org/pypi/lda
 
+import lda
+import models
 import numpy as np
 import textmining
-import lda
-from pymongo import MongoClient
 from items import DocumentItem
+from pymongo import MongoClient
 
 import nltk
 from nltk.corpus import stopwords
@@ -28,7 +29,9 @@ def createDocTermMat(dataset):
     # Adds each document to the docTermMatrix, assuming document is a list of words
     for document in dataset:
         titles.append(document.get_base_url())
-        docTermMatrix.add_doc(' '.join(document.get_document()))
+        weight = apply_weighting(document.get_deg_sep())
+        for _ in range(weight):
+            docTermMatrix.add_doc(' '.join(document.get_document()))
     temp = list(docTermMatrix.rows(cutoff=1))
     terms = tuple(temp[0])
     matrix = np.array(temp[1:])
@@ -39,6 +42,17 @@ def saveTo(name, dtm):
         Save the document-term matrix to name. Cutoff represents the minimum frequency a word must have before it is considered
     """
     dtm.write_csv(name, cutoff=1)
+
+# Maximum degree of separation of any website. Can arbitrarily choose cut-off, or can change this to
+# maximum of the degrees of separation after reading in the websites from the database later.
+# IMPORTANT NOTE: DEGREE OF SEPARATION SHOULD BE >= 1
+MAX_DEGREE = 10
+
+def apply_weighting(deg_sep, fn=models.power_law):
+    """
+    Takes in the degree of separation of a document and applies a weighting function.
+    """
+    return int(fn(deg_sep) / fn(MAX_DEGREE))
 
 class LDAM:
     def __init__(self, number_topics):
@@ -116,6 +130,7 @@ class MongoDB_loader():
             item = DocumentItem(base_url)
             for data in self.text_collection.find({"base_url": base_url}):
                 item.add_words(self.filter_words(data['text']))
+                item.update_degree(int(data['deg_sep']))
             corpus.append(item)
         return corpus
 
