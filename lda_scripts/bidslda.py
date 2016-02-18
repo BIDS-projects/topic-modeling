@@ -1,16 +1,16 @@
 # REFERENCE: https://pypi.python.org/pypi/lda
 
-# import lda
+import lda
 import models
-# import numpy as np
-# import textmining
-# from items import DocumentItem
-# from pymongo import MongoClient
+import numpy as np
+import textmining
+from items import DocumentItem
+from pymongo import MongoClient
 
-# import nltk
-# from nltk.corpus import stopwords
-# from nltk.tokenize import RegexpTokenizer
-# from nltk.stem.porter import PorterStemmer
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import RegexpTokenizer
+from nltk.stem.porter import PorterStemmer
 
 def createDocTermMat(dataset):
     """
@@ -45,7 +45,7 @@ def saveTo(name, dtm):
 
 # Maximum degree of separation of any website. Can arbitrarily choose cut-off, or can change this to
 # maximum of the degrees of separation after reading in the websites from the database later.
-# IMPORTANT NOTE: DEGREE OF SEPARATION SHOULD BE >= 1.
+# IMPORTANT NOTE: DEGREE OF SEPARATION SHOULD BE >= 1
 MAX_DEGREE = 10
 
 def apply_weighting(deg_sep, fn=models.power_law):
