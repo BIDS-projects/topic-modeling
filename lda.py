@@ -10,10 +10,24 @@
 ## Introduction to Probabilistic Topic Model
 # https://www.cs.princeton.edu/~blei/papers/Blei2012.pdf
 
+"""LDA analysis of BIDS data.
+
+Usage:
+  lda.py [--tiers=<max_tier>] [--fn=<fn>] [--alpha=<param>]
+
+Options:
+  -h --help           Display usage.
+  --alpha=<param>     Set the weighting function parameter. [default: 1.0]
+  --fn=<fn>           Choose the weighting function. [default: power_law]
+  --tiers=<max_tier>  Set the max tier. [default: 10]
+
+"""
+from docopt import docopt
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.decomposition import LatentDirichletAllocation, NMF
 from time import time
 from util import DocumentItem, MongoDB_loader
+import models
 
 # From http://scikit-learn.org/stable/auto_examples/applications/topics_extraction_with_nmf_lda.html#example-applications-topics-extraction-with-nmf-lda-py
 
@@ -28,7 +42,10 @@ class TopicModel():
     n_topics = 3
     n_top_words = 10
 
-    def __init__(self):
+    def __init__(self, max_degree, fn, alpha):
+        self.MAX_DEGREE = max_degree
+        self.fn = fn
+        self.alpha = alpha
         print("Importing data...")
         document_items = MongoDB_loader().get_corpus()
         self.data_samples = []
@@ -36,8 +53,15 @@ class TopicModel():
             # removes numbers
             #document = [word for word in item.get_document().split() if not (word.isdigit() or word[0] == '-' and word[1:].isdigit())]
             document = item.get_document()
+            tier = item.get_tier()
+            for _ in range(self.apply_weighting(tier)):
+                self.data_samples.append(document)
 
-            self.data_samples.append(document)
+    def apply_weighting(self, tier):
+        """
+        Takes in the degree of separation of a document and applies a weighting function.
+        """
+        return int(self.fn(tier, self.alpha) / self.fn(self.MAX_DEGREE, self.alpha))
 
     def print_top_words(self, model, feature_names, n_top_words):
         for topic_idx, topic in enumerate(model.components_):
@@ -91,6 +115,10 @@ class TopicModel():
         self.print_top_words(nmf, tfidf_feature_names, self.n_top_words)
 
 if __name__ == "__main__":
+    arguments = docopt(__doc__)
+    max_degree = int(arguments['--tier'])
+    fn = getattr(model, arguments['--fn'])
+    alpha = float(arguments['--alpha'])
     tm = TopicModel()
     tm.lda_analysis()
     tm.nmf_analysis()

@@ -4,12 +4,16 @@ class DocumentItem():
     def __init__(self, base_url):
         self.base_url = base_url
         self.document = []
+        self.tier = float('inf')
 
     def add_words(self, text):
         # text could be unicode or string
         #assert type(word_list) == list, "List needed. Got {} instead".format(type(word_list))
         
         self.document.append(text)
+
+    def update_tier(self, tier):
+        self.tier = min(self.tier, tier)
 
     #@property
     def get_document(self):
@@ -21,6 +25,10 @@ class DocumentItem():
     #@property
     def get_base_url(self):
         return self.base_url
+
+    # @property
+    def get_tier(self):
+        return self.tier
 
 
 class MongoDB_loader():
@@ -45,6 +53,7 @@ class MongoDB_loader():
             item = DocumentItem(base_url)
             for data in self.text_collection.find({"base_url": base_url}):
                 item.add_words(data['text'])
+                item.update_tier(data['tier'])
             corpus.append(item)
         return corpus
 
