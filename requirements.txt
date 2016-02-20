@@ -1,3 +1,5 @@
+scipy
+sklearn
 sqlalchemy
 sqlalchemy-utils
 textmining == 1.0
@@ -7,3 +9,4 @@ pytest
 arrow
 nltk
 pymongo
+docopt
