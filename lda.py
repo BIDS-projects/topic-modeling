@@ -33,9 +33,8 @@ import models
 
 
 def write_to_file(filename, uc):
-    f = open(filename, 'w')
-    f.write(uc.encode('utf8'))
-    f.close()
+    with open(filename, 'wb') as f:
+        f.write(uc.encode('utf8'))
 
 
 class TopicModel():
@@ -127,9 +126,9 @@ if __name__ == "__main__":
     ##### PLAYING WITH TF-IDF #####
     #tf_vectorizer = CountVectorizer(ngram_range=(1,3), max_df=0.95, min_df=2, stop_words='english')
     #tf = tf_vectorizer.fit_transform(tm.data_samples)
-
-    #tfidf_vectorizer = TfidfVectorizer(ngram_range=(1,3), max_df=0.95, min_df=2, #max_features=n_features,
-    #                                   stop_words='english')
-    #tfidf = tfidf_vectorizer.fit_transform(tm.data_samples)
     #write_to_file("tf.log", "\n".join(tf_vectorizer.get_feature_names()))
-    #write_to_file("tfidf.log", "\n".join(tfidf_vectorizer.get_feature_names()))
+
+    tfidf_vectorizer = TfidfVectorizer(ngram_range=(1,3), max_df=0.95, min_df=2, #max_features=n_features,
+                                       stop_words='english')
+    tfidf = tfidf_vectorizer.fit_transform(tm.data_samples)
+    write_to_file("tfidf.log", "\n".join(tfidf_vectorizer.get_feature_names()))
