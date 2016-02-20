@@ -17,12 +17,10 @@ from util import DocumentItem, MongoDB_loader
 
 # From http://scikit-learn.org/stable/auto_examples/applications/topics_extraction_with_nmf_lda.html#example-applications-topics-extraction-with-nmf-lda-py
 
-
 def write_to_file(filename, uc):
     f = open(filename, 'w')
     f.write(uc.encode('utf8'))
     f.close()
-
 
 class TopicModel():
     n_topics = 3
@@ -46,10 +44,12 @@ class TopicModel():
                             for i in topic.argsort()[:-n_top_words - 1:-1]]))
         print
 
-    def lda_analysis(self):
+    def lda_analysis(self, ngram_low, ngram_high):
+        assert ngram_low <= ngram_high, "ngram_low {} <= ngram_high {}".format(ngram_low, ngram_high)
+        # ngram_range_low, ngram_range_high
         print("Extracting tf features for LDA...")
         #tf_vectorizer = CountVectorizer(max_df=0.95, min_df=2, stop_words='english')
-        tf_vectorizer = CountVectorizer(ngram_range=(1,1), max_df=0.95, min_df=2, stop_words='english')
+        tf_vectorizer = CountVectorizer(ngram_range=(ngram_low,ngram_high), max_df=0.95, min_df=2, stop_words='english')
         t0 = time()
         tf = tf_vectorizer.fit_transform(self.data_samples)
         print("done in %0.3fs." % (time() - t0))
@@ -67,11 +67,12 @@ class TopicModel():
         tf_feature_names = tf_vectorizer.get_feature_names()
         self.print_top_words(lda, tf_feature_names, self.n_top_words)
 
-    def nmf_analysis(self):
+    def nmf_analysis(self, ngram_low, ngram_high):
+        assert ngram_low <= ngram_high, "ngram_low {} <= ngram_high {}".format(ngram_low, ngram_high)
         # TF-IDF + NMF
         # Use tf-idf features for NMF.
         print("Extracting tf-idf features for NMF...")
-        tfidf_vectorizer = TfidfVectorizer(ngram_range=(1,1),max_df=0.95, min_df=2, #max_features=n_features,
+        tfidf_vectorizer = TfidfVectorizer(ngram_range=(ngram_low,ngram_high),max_df=0.95, min_df=2, #max_features=n_features,
                                         stop_words='english')
         t0 = time()
         tfidf = tfidf_vectorizer.fit_transform(self.data_samples)
@@ -92,8 +93,8 @@ class TopicModel():
 
 if __name__ == "__main__":
     tm = TopicModel()
-    tm.lda_analysis()
-    tm.nmf_analysis()
+    tm.lda_analysis(2, 3)
+    tm.nmf_analysis(2, 3)
 
     ##### PLAYING WITH TF-IDF #####
     #tf_vectorizer = CountVectorizer(ngram_range=(1,3), max_df=0.95, min_df=2, stop_words='english')
