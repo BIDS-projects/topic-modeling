@@ -42,7 +42,7 @@ class TopicModel():
     n_topics = 3
     n_top_words = 10
 
-    def __init__(self, max_degree, fn, alpha):
+    def __init__(self, max_degree=10, fn="power_law", alpha=1.0):
         self.MAX_DEGREE = max_degree
         self.fn = fn
         self.alpha = alpha
@@ -54,8 +54,9 @@ class TopicModel():
             #document = [word for word in item.get_document().split() if not (word.isdigit() or word[0] == '-' and word[1:].isdigit())]
             document = item.get_document()
             tier = item.get_tier()
-            for _ in range(self.apply_weighting(tier)):
-                self.data_samples.append(document)
+            self.data_samples.append(document)
+            #for _ in range(self.apply_weighting(tier)):
+            #    self.data_samples.append(document)
 
     def apply_weighting(self, tier):
         """
@@ -70,10 +71,10 @@ class TopicModel():
                             for i in topic.argsort()[:-n_top_words - 1:-1]]))
         print
 
-    def lda_analysis(self):
+    def lda_analysis(self, ngram_low, ngram_high):
         print("Extracting tf features for LDA...")
         #tf_vectorizer = CountVectorizer(max_df=0.95, min_df=2, stop_words='english')
-        tf_vectorizer = CountVectorizer(ngram_range=(1,1), max_df=0.95, min_df=2, stop_words='english')
+        tf_vectorizer = CountVectorizer(ngram_range=(ngram_low, ngram_high), max_df=0.95, min_df=2, stop_words='english')
         t0 = time()
         tf = tf_vectorizer.fit_transform(self.data_samples)
         print("done in %0.3fs." % (time() - t0))
@@ -91,11 +92,11 @@ class TopicModel():
         tf_feature_names = tf_vectorizer.get_feature_names()
         self.print_top_words(lda, tf_feature_names, self.n_top_words)
 
-    def nmf_analysis(self):
+    def nmf_analysis(self, ngram_low, ngram_high):
         # TF-IDF + NMF
         # Use tf-idf features for NMF.
         print("Extracting tf-idf features for NMF...")
-        tfidf_vectorizer = TfidfVectorizer(ngram_range=(1,1),max_df=0.95, min_df=2, #max_features=n_features,
+        tfidf_vectorizer = TfidfVectorizer(ngram_range=(ngram_low,ngram_high),max_df=0.95, min_df=2, #max_features=n_features,
                                         stop_words='english')
         t0 = time()
         tfidf = tfidf_vectorizer.fit_transform(self.data_samples)
@@ -115,13 +116,13 @@ class TopicModel():
         self.print_top_words(nmf, tfidf_feature_names, self.n_top_words)
 
 if __name__ == "__main__":
-    arguments = docopt(__doc__)
-    max_degree = int(arguments['--tier'])
-    fn = getattr(model, arguments['--fn'])
-    alpha = float(arguments['--alpha'])
+    #arguments = docopt(__doc__)
+    #max_degree = int(arguments['--tier'])
+    #fn = getattr(model, arguments['--fn'])
+    #alpha = float(arguments['--alpha'])
     tm = TopicModel()
-    tm.lda_analysis()
-    tm.nmf_analysis()
+    tm.lda_analysis(2,3)
+    tm.nmf_analysis(2,3)
 
     ##### PLAYING WITH TF-IDF #####
     #tf_vectorizer = CountVectorizer(ngram_range=(1,3), max_df=0.95, min_df=2, stop_words='english')
