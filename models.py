@@ -1,4 +1,4 @@
-from math import exp, gamma
+from math import exp, factorial, gamma
 
 def chi_square_model(deg_sep, ALPHA=1.0):
     """
@@ -38,7 +38,7 @@ def poisson_law(deg_sep, ALPHA=1.0):
     ALPHA = The mean of the Poisson distribution.
     ALPHA must satisfy 0 <= ALPHA <= 1 to satisfy monotonicity.
     """
-    return exp(- ALPHA) * (ALPHA ** deg_sep) / gamma(deg_sep)
+    return exp(- ALPHA) * (ALPHA ** deg_sep) / factorial(deg_sep)
 
 def power_law(deg_sep, ALPHA=1.0):
     """

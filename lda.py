@@ -18,8 +18,8 @@ Usage:
 Options:
   -h --help           Display usage.
   --alpha=<param>     Set the weighting function parameter. [default: 1.0]
-  --fn=<fn>           Choose the weighting function. [default: power_law]
-  --tiers=<max_tier>  Set the max tier. [default: 10]
+  --fn=<fn>           Choose the weighting function. [default: poisson_law]
+  --tiers=<max_tier>  Set the max tier. [default: 3]
 
 """
 from docopt import docopt
@@ -41,7 +41,7 @@ class TopicModel():
     n_topics = 3
     n_top_words = 10
 
-    def __init__(self, max_degree=10, fn="power_law", alpha=1.0):
+    def __init__(self, max_degree=3, fn=poisson_law, alpha=1.0):
         self.MAX_DEGREE = max_degree
         self.fn = fn
         self.alpha = alpha
