@@ -41,7 +41,7 @@ class TopicModel():
     n_topics = 3
     n_top_words = 10
 
-    def __init__(self, max_degree=3, fn=poisson_law, alpha=1.0):
+    def __init__(self, max_degree=3, fn=models.poisson_law, alpha=1.0):
         self.MAX_DEGREE = max_degree
         self.fn = fn
         self.alpha = alpha
@@ -53,9 +53,9 @@ class TopicModel():
             #document = [word for word in item.get_document().split() if not (word.isdigit() or word[0] == '-' and word[1:].isdigit())]
             document = item.get_document()
             tier = item.get_tier()
-            self.data_samples.append(document)
-            #for _ in range(self.apply_weighting(tier)):
-            #    self.data_samples.append(document)
+            # self.data_samples.append(document)
+            for _ in range(self.apply_weighting(tier)):
+               self.data_samples.append(document)
 
     def apply_weighting(self, tier):
         """
@@ -115,10 +115,10 @@ class TopicModel():
         self.print_top_words(nmf, tfidf_feature_names, self.n_top_words)
 
 if __name__ == "__main__":
-    #arguments = docopt(__doc__)
-    #max_degree = int(arguments['--tier'])
-    #fn = getattr(model, arguments['--fn'])
-    #alpha = float(arguments['--alpha'])
+    arguments = docopt(__doc__)
+    max_degree = int(arguments['--tiers'])
+    fn = getattr(models, arguments['--fn'])
+    alpha = float(arguments['--alpha'])
     tm = TopicModel()
     tm.lda_analysis(2,3)
     tm.nmf_analysis(2,3)
