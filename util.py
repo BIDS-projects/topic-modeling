@@ -56,4 +56,3 @@ class MongoDB_loader():
                 item.update_tier(data['tier'])
             corpus.append(item)
         return corpus
-

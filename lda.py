@@ -50,17 +50,30 @@ class TopicModel():
         self.ratio = ratio
         print("Importing data...")
         document_items = MongoDB_loader().get_corpus()
-        reduction = reductions.Reduction()
+        reduction_obj = reduction.Reduction()
         self.data_samples = []
         for item in document_items:
             # removes numbers
-            #document = [word for word in item.get_document().split() if not (word.isdigit() or word[0] == '-' and word[1:].isdigit())]
-            document = item.get_document()
-            reduced_document = reduction.reduce(document, self.ratio)
-            tier = item.get_tier()
-            # self.data_samples.append(document)
-            for _ in range(self.apply_weighting(tier)):
-               self.data_samples.append(reduced_document)
+            document = self.filter_document(item.get_document())
+            #document = item.get_document()
+
+            #reduced_document = " ".join(reduction_obj.reduce(document, self.ratio))
+
+            self.data_samples.append(document)
+            #for _ in range(self.apply_weighting(item.get_tier())):
+            #   #self.data_samples.append(reduced_document)
+            #   self.data_samples.append(document)
+
+
+    def filter_document(self, document):
+        filtered = []
+        custom_stopwords = ['div']
+        for word in document.split():
+            #if 'div' in word.lower():
+                #return "1"
+            if not (word.isdigit() or word[0] == '-' and word[1:].isdigit()) and (word.lower() not in custom_stopwords):
+                filtered.append(word)
+        return " ".join(filtered)
 
     def apply_weighting(self, tier):
         """
@@ -134,7 +147,7 @@ if __name__ == "__main__":
     #tf = tf_vectorizer.fit_transform(tm.data_samples)
     #write_to_file("tf.log", "\n".join(tf_vectorizer.get_feature_names()))
 
-    tfidf_vectorizer = TfidfVectorizer(ngram_range=(1,3), max_df=0.95, min_df=2, #max_features=n_features,
-                                       stop_words='english')
-    tfidf = tfidf_vectorizer.fit_transform(tm.data_samples)
-    write_to_file("tfidf.log", "\n".join(tfidf_vectorizer.get_feature_names()))
+    #tfidf_vectorizer = TfidfVectorizer(ngram_range=(1,3), max_df=0.95, min_df=2, #max_features=n_features,
+    #                                   stop_words='english')
+    #tfidf = tfidf_vectorizer.fit_transform(tm.data_samples)
+    #write_to_file("tfidf.log", "\n".join(tfidf_vectorizer.get_feature_names()))

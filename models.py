@@ -47,4 +47,4 @@ def power_law(deg_sep, ALPHA=1.0):
     WEIGHT = DEG_SEP^(-ALPHA)
     ALPHA: Parameter to control power law decay rate. 
     """
-    return deg_sep ** (- ALPHA)
+    return (deg_sep + 1) ** (- ALPHA)
