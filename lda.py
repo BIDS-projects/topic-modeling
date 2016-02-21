@@ -13,13 +13,14 @@
 """LDA analysis of BIDS data.
 
 Usage:
-  lda.py [--tiers=<max_tier>] [--fn=<fn>] [--alpha=<param>]
+  lda.py [--tiers=<max_tier>] [--fn=<fn>] [--alpha=<param>] [--ratio=<ratio>]
 
 Options:
   -h --help           Display usage.
   --alpha=<param>     Set the weighting function parameter. [default: 1.0]
   --fn=<fn>           Choose the weighting function. [default: poisson_law]
   --tiers=<max_tier>  Set the max tier. [default: 3]
+  --ratio=<ratio>     Sets the summarizer ratio. [default: 0.5]
 
 """
 from docopt import docopt
@@ -28,6 +29,7 @@ from sklearn.decomposition import LatentDirichletAllocation, NMF
 from time import time
 from util import DocumentItem, MongoDB_loader
 import models
+import reduction
 
 # From http://scikit-learn.org/stable/auto_examples/applications/topics_extraction_with_nmf_lda.html#example-applications-topics-extraction-with-nmf-lda-py
 
@@ -41,21 +43,24 @@ class TopicModel():
     n_topics = 3
     n_top_words = 10
 
-    def __init__(self, max_degree=3, fn=models.poisson_law, alpha=1.0):
+    def __init__(self, max_degree=3, fn=models.poisson_law, alpha=1.0, ratio=0.5):
         self.MAX_DEGREE = max_degree
         self.fn = fn
         self.alpha = alpha
+        self.ratio = ratio
         print("Importing data...")
         document_items = MongoDB_loader().get_corpus()
+        reduction = reductions.Reduction()
         self.data_samples = []
         for item in document_items:
             # removes numbers
             #document = [word for word in item.get_document().split() if not (word.isdigit() or word[0] == '-' and word[1:].isdigit())]
             document = item.get_document()
+            reduced_document = reduction.reduce(document, self.ratio)
             tier = item.get_tier()
             # self.data_samples.append(document)
             for _ in range(self.apply_weighting(tier)):
-               self.data_samples.append(document)
+               self.data_samples.append(reduced_document)
 
     def apply_weighting(self, tier):
         """
@@ -119,7 +124,8 @@ if __name__ == "__main__":
     max_degree = int(arguments['--tiers'])
     fn = getattr(models, arguments['--fn'])
     alpha = float(arguments['--alpha'])
-    tm = TopicModel()
+    ratio = float(arguments['--ratio'])
+    tm = TopicModel(max_degree, fn, alpha, ratio)
     tm.lda_analysis(2,3)
     tm.nmf_analysis(2,3)
 
