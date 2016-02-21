@@ -6,10 +6,11 @@ class DocumentItem():
         self.document = []
         self.tier = float('inf')
 
-    def add_words(self, text):
+    def add_words(self, text, url):
         # text could be unicode or string
         #assert type(word_list) == list, "List needed. Got {} instead".format(type(word_list))
-        
+#        if '</div>' in text:
+#            import pdb; pdb.set_trace()
         self.document.append(text)
 
     def update_tier(self, tier):
@@ -52,7 +53,8 @@ class MongoDB_loader():
         for base_url in uniq_base_urls:
             item = DocumentItem(base_url)
             for data in self.text_collection.find({"base_url": base_url}):
-                item.add_words(data['text'])
-                item.update_tier(data['tier'])
+                if ".xml" not in data['src_url']:
+                    item.add_words(data['text'], data['src_url'])
+                    item.update_tier(data['tier'])
             corpus.append(item)
         return corpus
