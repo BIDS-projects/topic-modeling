@@ -30,6 +30,7 @@ from time import time
 from util import DocumentItem, MongoDB_loader
 import models
 import reduction
+import numpy as np
 
 # From http://scikit-learn.org/stable/auto_examples/applications/topics_extraction_with_nmf_lda.html#example-applications-topics-extraction-with-nmf-lda-py
 
@@ -40,7 +41,7 @@ def write_to_file(filename, uc):
 
 
 class TopicModel():
-    n_topics = 3
+    n_topics = 6
     n_top_words = 10
 
     def __init__(self, max_degree=3, fn=models.poisson_law, alpha=1.0, ratio=0.5):
@@ -51,9 +52,14 @@ class TopicModel():
         print("Importing data...")
         document_items = MongoDB_loader().get_corpus()
         reduction_obj = reduction.Reduction()
+        self.inst_urls = []
+        self.inst_names = []
         self.data_samples = []
         for item in document_items:
+            # TODO: process to save into inst_names
+            self.inst_urls.append(item.get_base_url())
             # removes numbers
+            print("Filtering: {}".format(item.get_base_url()))
             document = self.filter_document(item.get_document())
             #document = item.get_document()
 
@@ -117,8 +123,12 @@ class TopicModel():
                                         stop_words='english')
         t0 = time()
         tfidf = tfidf_vectorizer.fit_transform(self.data_samples)
+        tfidf_dtm = tfidf.toarray()
         print("done in %0.3fs." % (time() - t0))
 
+        # AFTER FITTING VOCAB
+        tfidf_feature_names = tfidf_vectorizer.get_feature_names()
+        tfidf_vocab = np.array(tfidf_feature_names)
 
         # Fit the NMF model
         print("Fitting the NMF model with tf-idf features,")
@@ -126,11 +136,33 @@ class TopicModel():
     #        % (n_samples, n_features))
         t0 = time()
         nmf = NMF(n_components=self.n_topics, random_state=1, alpha=.1, l1_ratio=.5).fit(tfidf)
+        nmf_clf = NMF(n_components=self.n_topics, random_state=1, alpha=.1, l1_ratio=.5)
+        doctopic = nmf_clf.fit_transform(tfidf_dtm)
+
         print("done in %0.3fs." % (time() - t0))
 
         print("\nTopics in NMF model:")
-        tfidf_feature_names = tfidf_vectorizer.get_feature_names()
+        topic_words = []
+        for topic in nmf_clf.components_:
+            word_idx = np.argsort(topic)[::-1][0:self.n_top_words]
+            topic_words.append([tfidf_vocab[i] for i in word_idx])
+        doctopic_prop = doctopic / np.sum(doctopic, axis=1, keepdims=True)
         self.print_top_words(nmf, tfidf_feature_names, self.n_top_words)
+
+        inst_urls = np.asarray(self.inst_urls)
+        doctopic_orig = doctopic_prop.copy()
+
+        n_groups = len(set(inst_urls))
+        doctopic_grouped = np.zeros((n_groups, self.n_topics))
+        for i, name in enumerate(sorted(set(inst_urls))):
+            doctopic_grouped[i, :] = np.mean(doctopic_prop[inst_urls == name, :], axis=0)
+
+        insts = sorted(set(inst_urls))
+        for i in range(len(doctopic_grouped)):
+            top_topics = np.argsort(doctopic_grouped[i,:])[::-1][0:3]
+            top_topics_str = ' '.join(str(t) for t in top_topics)
+            print("{}: {}".format(insts[i], top_topics_str))
+
 
 if __name__ == "__main__":
     arguments = docopt(__doc__)
@@ -139,7 +171,7 @@ if __name__ == "__main__":
     alpha = float(arguments['--alpha'])
     ratio = float(arguments['--ratio'])
     tm = TopicModel(max_degree, fn, alpha, ratio)
-    tm.lda_analysis(2,3)
+    #tm.lda_analysis(2,3)
     tm.nmf_analysis(2,3)
 
     ##### PLAYING WITH TF-IDF #####
