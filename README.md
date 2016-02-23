@@ -1,5 +1,5 @@
-# LDA
-LDA algorithm, converts raw scraper data into term-document matrix
+# Topic Modeling
+Using topic modeling algorithms such as LDA and NMF to extract topics from raw texts
 
 # How To Use
 
