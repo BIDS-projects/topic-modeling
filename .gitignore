@@ -66,3 +66,4 @@ target/
 
 # OSX
 .DS_Store
+/python-tf-idf/
