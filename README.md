@@ -1,6 +1,12 @@
 # LDA
 LDA algorithm, converts raw scraper data into term-document matrix
 
+# How To Use
+
+``` 
+python3 topic-model/topic-model.py
+```
+
 # Installation
 
 ## Third-Party
