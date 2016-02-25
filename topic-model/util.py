@@ -1,60 +1,39 @@
 from pymongo import MongoClient
 
+
 class DocumentItem():
-    def __init__(self, base_url):
+
+    def __init__(self, base_url, text, tier):
+        """Initialize item."""
         self.base_url = base_url
-        self.document = []
-        self.tier = float('inf')
-
-    def add_words(self, text, url):
-        # text could be unicode or string
-        #assert type(word_list) == list, "List needed. Got {} instead".format(type(word_list))
-#        if '</div>' in text:
-#            import pdb; pdb.set_trace()
-        self.document.append(text)
-
-    def update_tier(self, tier):
-        self.tier = min(self.tier, tier)
-
-    #@property
-    def get_document(self):
-        return " ".join(self.document)
-
-    def get_list_of_words(self):
-        return self.document
-
-    #@property
-    def get_base_url(self):
-        return self.base_url
-
-    # @property
-    def get_tier(self):
-        return self.tier
+        self.text = text
+        self.tier = tier
 
 
-class MongoDB_loader():
+class MongoDBLoader():
+
     def __init__(self):
+        """Initializes the connection."""
         settings = {'MONGODB_SERVER':"localhost",
                     'MONGODB_PORT': 27017,
                     'MONGODB_DB': "ecosystem_mapping",
-                    'MONGODB_LINK_COLLECTION': "link_collection",
-                    'MONGODB_TEXT_COLLECTION': "text_collection"}
+                    'MONGODB_COLLECTION': "filtered_collection"}
 
         connection = MongoClient(
             settings['MONGODB_SERVER'],
             settings['MONGODB_PORT']
         )
         db = connection[settings['MONGODB_DB']]
-        self.text_collection = db[settings['MONGODB_TEXT_COLLECTION']]
+        self.collection = db[settings['MONGODB_COLLECTION']]
 
     def get_corpus(self):
-        uniq_base_urls = self.text_collection.distinct("base_url")
+        """Reads the objects from the database."""
+        unique_base_urls = self.collection.distinct("base_url")
         corpus = []
-        for base_url in uniq_base_urls:
-            item = DocumentItem(base_url)
-            for data in self.text_collection.find({"base_url": base_url}):
-                if ".xml" not in data['src_url']:
-                    item.add_words(data['text'], data['src_url'])
-                    item.update_tier(data['tier'])
-            corpus.append(item)
+        for base_url in unique_base_urls:
+            for data in self.collection.find({"base_url": base_url}):
+                if ".xml" not in data['url']:
+                    text = data['text']
+                    tier = data['tier']
+                    corpus.append(DocumentItem(base_url, text, tier))
         return corpus
