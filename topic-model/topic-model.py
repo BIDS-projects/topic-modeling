@@ -28,6 +28,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.decomposition import LatentDirichletAllocation, NMF
 from time import time
 from util import DocumentItem, MongoDB_loader
+import re
 import models
 import reduction
 
@@ -91,7 +92,7 @@ class TopicModel():
     def lda_analysis(self, ngram_low, ngram_high):
         print("Extracting tf features for LDA...")
         #tf_vectorizer = CountVectorizer(max_df=0.95, min_df=2, stop_words='english')
-        tf_vectorizer = CountVectorizer(ngram_range=(ngram_low, ngram_high), max_df=0.95, min_df=2, stop_words='english')
+        tf_vectorizer = CountVectorizer(ngram_range=(ngram_low, ngram_high), max_df=0.95, min_df=2, stop_words='english', token_pattern = r"(?u)\b[A-Za-z][A-Za-z]+\b")
         t0 = time()
         tf = tf_vectorizer.fit_transform(self.data_samples)
         print("done in %0.3fs." % (time() - t0))
@@ -114,7 +115,7 @@ class TopicModel():
         # Use tf-idf features for NMF.
         print("Extracting tf-idf features for NMF...")
         tfidf_vectorizer = TfidfVectorizer(ngram_range=(ngram_low,ngram_high),max_df=0.95, min_df=2, #max_features=n_features,
-                                        stop_words='english')
+                                        stop_words='english', token_pattern = r"(?u)\b[A-Za-z][A-Za-z]+\b")
         t0 = time()
         tfidf = tfidf_vectorizer.fit_transform(self.data_samples)
         print("done in %0.3fs." % (time() - t0))
