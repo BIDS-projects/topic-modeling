@@ -32,7 +32,7 @@ class MongoDBLoader():
         corpus = []
         for base_url in unique_base_urls:
             for data in self.collection.find({"base_url": base_url}):
-                if ".xml" not in data['url']:
+                if ".xml" not in data['src_url']:
                     text = data['text']
                     tier = data['tier']
                     corpus.append(DocumentItem(base_url, text, tier))
