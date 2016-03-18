@@ -72,7 +72,7 @@ class TopicModel():
         """Performs LDA analysis."""
         print("Extracting tf features for LDA...")
         # tf_vectorizer = CountVectorizer(max_df=0.95, min_df=2, stop_words='english')
-        tf_vectorizer = CountVectorizer(ngram_range=(ngram_low, ngram_high), max_df=0.95, min_df=2, stop_words='english')
+        tf_vectorizer = CountVectorizer(ngram_range=(ngram_low, ngram_high), max_df=0.95, min_df=2, stop_words='english', token_pattern = r"(?u)\b[A-Za-z][A-Za-z]+\b")
         t0 = time()
         tf = tf_vectorizer.fit_transform(self.data_samples)
         # write_to_file("tf.log", "\n".join(tf_vectorizer.get_feature_names()))
@@ -97,7 +97,7 @@ class TopicModel():
         # Use tf-idf features for NMF.
         print("Extracting tf-idf features for NMF...")
         tfidf_vectorizer = TfidfVectorizer(ngram_range=(ngram_low,ngram_high), max_df=0.95, min_df=2, # max_features=n_features,
-                                           stop_words='english')
+                                           stop_words='english', token_pattern = r"(?u)\b[A-Za-z][A-Za-z]+\b")
         t0 = time()
         tfidf = tfidf_vectorizer.fit_transform(self.data_samples)
         # write_to_file("tfidf.log", "\n".join(tfidf_vectorizer.get_feature_names()))
