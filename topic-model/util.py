@@ -37,3 +37,19 @@ class MongoDBLoader():
                     tier = data['tier']
                     corpus.append(DocumentItem(base_url, text, tier))
         return corpus
+
+    def locate_keywords(self, keywords, head=10):
+        """Locates the URLs in which the keyword phrase is found."""
+        unique_src_urls = self.collection.distinct("src_url")
+        matches = []
+        for src_url in unique_src_urls:
+            for data in self.collection.find({"src_url": src_url}):
+                hits = data['text'].count(keywords)
+                if hits > 0:
+                    matches.append((src_url, hits))
+        matches.sort(key=lambda (src_url, hits): -hits)
+        for src_url, hits in matches:
+            print str(hits).rjust(5), src_url
+            head -= 1
+            if head <= 0:
+                break
