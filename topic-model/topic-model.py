@@ -27,6 +27,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from time import time
 from util import DocumentItem, MongoDBLoader
 import models
+import csv
 
 # From http://scikit-learn.org/stable/auto_examples/applications/topics_extraction_with_nmf_lda.html#example-applications-topics-extraction-with-nmf-lda-py
 
@@ -37,7 +38,7 @@ def write_to_file(filename, uc):
 
 
 class TopicModel():
-    n_topics = 3
+    n_topics = 5
     n_top_words = 10
 
     def __init__(self, max_degree=3, fn=models.poisson_law, alpha=1.0):
@@ -68,6 +69,18 @@ class TopicModel():
             ))
         print
 
+    def write_top_words(self, model, feature_names, n_top_words, filename):
+        """Write the top N words for each topic to a CSV file"""
+
+        with open("{}.csv".format(filename), "wb") as csvfile:
+            writer = csv.writer(csvfile, delimiter=",")
+            header = ("topic_number", "topic_words")
+            writer.writerow(header)
+            for topic_idx, topic in enumerate(model.components_):
+                topic_words = [feature_names[i] for i in topic.argsort()[:-n_top_words - 1:-1]]
+                row = (topic_idx, topic_words)
+                writer.writerow(row)
+
     def lda_analysis(self, ngram_low, ngram_high):
         """Performs LDA analysis."""
         print("Extracting tf features for LDA...")
@@ -89,7 +102,8 @@ class TopicModel():
 
         print("\nTopics in LDA model:")
         tf_feature_names = tf_vectorizer.get_feature_names()
-        self.print_top_words(lda, tf_feature_names, self.n_top_words)
+        #self.print_top_words(lda, tf_feature_names, self.n_top_words)
+        self.write_top_words(lda, tf_feature_names, self.n_top_words, "lda")
 
     def nmf_analysis(self, ngram_low, ngram_high):
         """Performs NMF analysis."""
@@ -113,10 +127,12 @@ class TopicModel():
 
         print("\nTopics in NMF model:")
         tfidf_feature_names = tfidf_vectorizer.get_feature_names()
-        self.print_top_words(nmf, tfidf_feature_names, self.n_top_words)
+        #self.print_top_words(nmf, tfidf_feature_names, self.n_top_words)
+        self.write_top_words(nmf, tfidf_feature_names, self.n_top_words, "nmf")
 
 
 if __name__ == "__main__":
+    
     arguments = docopt(__doc__)
     max_degree = int(arguments['--tiers'])
     fn = getattr(models, arguments['--fn'])
